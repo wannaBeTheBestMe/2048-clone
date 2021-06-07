@@ -53,26 +53,21 @@ class Grid {
   }
 
   spawn(numberOfTiles) {
-    for (let i = 0; i < numberOfTiles; i++) {
-      let possibleXValues = [0, 1, 2, 3];
-      let possibleYValues = [0, 1, 2, 3];
+    let possibleXValues = [0, 1, 2, 3];
+    let possibleYValues = [0, 1, 2, 3];
 
-      if (tiles.length > 1) {
-        let lastTile = tiles[tiles.length - 1];
-        let randomNumber = random();
-        console.log(randomNumber);
-
-        randomNumber > 0.5 ? possibleXValues.splice(lastTile.x, 1) : possibleXValues.splice(lastTile.y, 1);
-      }
-
-      console.log([possibleXValues, possibleYValues]);
-
+    let i = 0;
+    while (i < numberOfTiles) {
       let xValue = random(possibleXValues);
       let yValue = random(possibleYValues);
 
-      this.grid[xValue][yValue] = 2;
-
-      tiles[i].spawn(xValue, yValue);
+      if (this.grid[yValue][xValue] === 0) {
+        tiles[i].spawn(xValue, yValue);
+        this.grid[yValue][xValue] = tiles[i].value;
+        i++;
+      } else {
+        continue;
+      }
     }
   }
 }
@@ -106,12 +101,7 @@ Grid.Tile = class {
     fill(this.color);
     let tileWidth = grid.widthConstant - 0.5 * grid.weight;
     let tileHeight = grid.heightConstant - 0.5 * grid.weight;
-    rect(
-      this.x,
-      this.y,
-      tileWidth,
-      tileHeight
-    );
+    rect(this.x, this.y, tileWidth, tileHeight);
     this.displayValue(
       this.value,
       this.x + (grid.widthConstant - 1.5 * grid.weight) / 2 - size / 4,
@@ -128,14 +118,13 @@ Grid.Tile = class {
   }
 
   updatePositions() {
-    // switch (keyCode) {
-    //   case RIGHT_ARROW:
-    //     break;
-    // }
+    if (keyCode === UP_ARROW) {
+      console.log("once");
+    }
   }
 };
 
-function keyPressed() {
+function keyReleased() {
   for (let i = 0; i < tiles.length; i++) {
     tiles[i].updatePositions();
   }
