@@ -1,5 +1,5 @@
 /*
-1. An update in the grid values needs to cause an update on screen.
+
 */
 
 let fontRegular, fontItalic, fontBold;
@@ -26,7 +26,8 @@ function setup() {
 }
 
 function draw() {
-  grid.display();
+  grid.updateGrid();
+  grid.displayOutlines();
 }
 
 class Grid {
@@ -40,9 +41,22 @@ class Grid {
     for (let i = 0; i < this._length; i++) {
       this.grid[i] = new Array(this.breadth).fill(0);
     }
+    this.possibleXValues = [
+      this.weight,
+      this.widthConstant + 0.5 * this.weight,
+      2 * this.widthConstant + 0.5 * this.weight,
+      3 * this.widthConstant + 0.5 * this.weight
+    ];
+
+    this.possibleYValues = [
+      3 * this.heightConstant + 0.5 * this.weight,
+      2 * this.heightConstant + 0.5 * this.weight,
+      this.heightConstant + 0.5 * this.weight,
+      this.weight
+    ];
   }
 
-  display() {
+  displayOutlines() {
     for (let j = 0; j < 5; j++) {
       stroke(187, 173, 160, 255);
       j === 0 || j === 4 ? strokeWeight(2 * this.weight) : strokeWeight(this.weight);
@@ -70,6 +84,27 @@ class Grid {
       }
     }
   }
+
+  updateGrid() {
+    for (let i = 0; i < this.grid.length; i++) {
+      for (let j = 0; j < this.grid[i].length; j++) {
+        if (this.grid[i][j] !== 0) {
+          noStroke();
+          fill(this.grid[i][j] === 2 ? Colors._2 : Colors._4);
+          let tileWidth = this.widthConstant - 0.5 * this.weight;
+          let tileHeight = this.heightConstant - 0.5 * this.weight;
+          let x = this.possibleXValues[j];
+          let y = this.possibleYValues[i];
+          rect(x, y, tileWidth, tileHeight);
+          Grid.Tile.displayValue(
+            this.grid[i][j],
+            x + (this.widthConstant - 1.5 * this.weight) / 2 - size / 4,
+            y + (this.heightConstant - 1.5 * this.weight) / 2 + size / 3
+          );
+        }
+      }
+    }
+  }
 }
 
 Grid.Tile = class {
@@ -81,35 +116,22 @@ Grid.Tile = class {
   }
 
   spawn(xPos, yPos) {
-    let possibleXValues = [
-      grid.weight,
-      grid.widthConstant + 0.5 * grid.weight,
-      2 * grid.widthConstant + 0.5 * grid.weight,
-      3 * grid.widthConstant + 0.5 * grid.weight
-    ];
-    let possibleYValues = [
-      3 * grid.heightConstant + 0.5 * grid.weight,
-      2 * grid.heightConstant + 0.5 * grid.weight,
-      grid.heightConstant + 0.5 * grid.weight,
-      grid.weight
-    ];
-
-    this.x = possibleXValues[xPos];
-    this.y = possibleYValues[yPos];
+    this.x = grid.possibleXValues[xPos];
+    this.y = grid.possibleYValues[yPos];
 
     noStroke();
     fill(this.color);
     let tileWidth = grid.widthConstant - 0.5 * grid.weight;
     let tileHeight = grid.heightConstant - 0.5 * grid.weight;
     rect(this.x, this.y, tileWidth, tileHeight);
-    this.displayValue(
+    Grid.Tile.displayValue(
       this.value,
       this.x + (grid.widthConstant - 1.5 * grid.weight) / 2 - size / 4,
       this.y + (grid.heightConstant - 1.5 * grid.weight) / 2 + size / 3
     );
   }
 
-  displayValue(textMessage, textX, textY) {
+  static displayValue(textMessage, textX, textY) {
     noStroke();
     fill(Colors.TEXT);
     textSize(size);
