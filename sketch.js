@@ -4,8 +4,24 @@
 
 let fontRegular, fontItalic, fontBold;
 let grid;
-let tiles = [];
 let size = 100;
+let colors = {
+  "BACKGROUND": "RGBA(205, 193, 180, 1)",
+  "LINES": "RGBA(187, 173, 160, 1)",
+  "TEXT": "RGBA(119, 110, 101, 1)",
+  0: "RGBA(205, 193, 180, 1)",
+  2: "RGBA(238, 228, 218, 1)",
+  4: "RGBA(238, 225, 201, 1)",
+  8: "RGBA(243, 178, 122, 1)",
+  16: "RGBA(246, 150, 100, 1)",
+  32: "RGBA(247, 124, 95, 1)",
+  64: "RGBA(247, 95, 59, 1)",
+  128: "RGBA(237, 208, 115, 1)",
+  256: "RGBA(236, 203, 101, 1)",
+  512: "RGBA(236, 200, 90, 1)",
+  1024: "RGBA(231, 194, 87, 1)",
+  2048: "RGBA(232, 190, 78, 1)"
+};
 
 function preload() {
   fontRegular = loadFont("Assets/ClearSans-Regular.ttf");
@@ -15,12 +31,12 @@ function preload() {
 
 function setup() {
   createCanvas(800, 800);
-  background(Colors.BACKGROUND);
+  background(colors.BACKGROUND);
   grid = new Grid(4, 4);
-  for (let i = 0; i < 2; i++) {
-    let randomValue = random([2, 4]);
-    let randomColor = randomValue == 2 ? Colors._2 : Colors._4;
-    tiles[i] = new Grid.Tile(0, 0, randomValue, randomColor);
+  for (let i = 0; i < grid.grid.length; i++) {
+    for (let j = 0; j < grid.grid[i].length; j++) {
+      grid.grid[i][j] = new Grid.Tile(0, 0, 0, color(0, 0, 0, 0));
+    }
   }
   grid.spawn(2);
 }
@@ -41,6 +57,7 @@ class Grid {
     for (let i = 0; i < this._length; i++) {
       this.grid[i] = new Array(this.breadth).fill(0);
     }
+    // this.debug = this.grid;
     this.possibleXValues = [
       this.weight,
       this.widthConstant + 0.5 * this.weight,
@@ -75,9 +92,10 @@ class Grid {
       let xValue = random(possibleXValues);
       let yValue = random(possibleYValues);
 
-      if (this.grid[yValue][xValue] === 0) {
-        tiles[i].spawn(xValue, yValue);
-        this.grid[yValue][xValue] = tiles[i].value;
+      if (this.grid[yValue][xValue].value === 0) {
+        let randomValue = random([2, 4]);
+        this.grid[yValue][xValue].value = randomValue;
+        this.grid[yValue][xValue].color = randomValue == 2 ? colors[2] : colors[4];;
         i++;
       } else {
         continue;
@@ -88,16 +106,20 @@ class Grid {
   updateGrid() {
     for (let i = 0; i < this.grid.length; i++) {
       for (let j = 0; j < this.grid[i].length; j++) {
-        if (this.grid[i][j] !== 0) {
-          noStroke();
-          fill(this.grid[i][j] === 2 ? Colors._2 : Colors._4);
-          let tileWidth = this.widthConstant - 0.5 * this.weight;
-          let tileHeight = this.heightConstant - 0.5 * this.weight;
-          let x = this.possibleXValues[j];
-          let y = this.possibleYValues[i];
-          rect(x, y, tileWidth, tileHeight);
+        noStroke();
+        try {
+          fill(color(colors[this.grid[i][j].value]));
+        } catch {
+          fill(255, 0, 0);
+        }
+        let tileWidth = this.widthConstant - 0.5 * this.weight;
+        let tileHeight = this.heightConstant - 0.5 * this.weight;
+        let x = this.possibleXValues[j];
+        let y = this.possibleYValues[i];
+        rect(x, y, tileWidth, tileHeight);
+        if (this.grid[i][j].value !== 0) {
           Grid.Tile.displayValue(
-            this.grid[i][j],
+            this.grid[i][j].value,
             x + (this.widthConstant - 1.5 * this.weight) / 2 - size / 4,
             y + (this.heightConstant - 1.5 * this.weight) / 2 + size / 3
           );
@@ -105,8 +127,22 @@ class Grid {
       }
     }
   }
-}
 
+  updatePosition() {
+    let sum = 0;
+    if (keyCode === RIGHT_ARROW) {
+      for (let i = 0; i < grid.grid.length; i++) {
+        sum = 0;
+        for (let j = 0; j < grid.grid[i].length; j++) {
+          sum += grid.grid[i][j].value;
+          grid.grid[i][j].value = 0;
+        }
+        console.log(sum);
+        grid.grid[i][grid.grid[i].length - 1].value = sum;
+      }
+    }
+  }
+}
 Grid.Tile = class {
   constructor(x, y, value, color) {
     this.x = x;
@@ -133,38 +169,13 @@ Grid.Tile = class {
 
   static displayValue(textMessage, textX, textY) {
     noStroke();
-    fill(Colors.TEXT);
+    fill(colors.TEXT);
     textSize(size);
     textFont(fontBold);
     text(textMessage, textX, textY);
   }
-
-  updatePositions() {
-    if (keyCode === UP_ARROW) {
-      console.log("once");
-    }
-  }
 };
 
 function keyReleased() {
-  for (let i = 0; i < tiles.length; i++) {
-    tiles[i].updatePositions();
-  }
-}
-
-class Colors {
-  static BACKGROUND = "RGBA(205, 193, 180, 1)";
-  static LINES = "RGBA(187, 173, 160, 1)";
-  static TEXT = "RGBA(119, 110, 101, 1)";
-  static _2 = "RGBA(238, 228, 218, 1)";
-  static _4 = "RGBA(238, 225, 201, 1)";
-  static _8 = "RGBA(243, 178, 122, 1)";
-  static _16 = "RGBA(246, 150, 100, 1)";
-  static _32 = "RGBA(247, 124, 95, 1)";
-  static _64 = "RGBA(247, 95, 59, 1)";
-  static _128 = "RGBA(237, 208, 115, 1)";
-  static _256 = "RGBA(236, 203, 101, 1)";
-  static _512 = "RGBA(236, 200, 90, 1)";
-  static _1024 = "RGBA(231, 194, 87, 1)";
-  static _2048 = "RGBA(232, 190, 78, 1)";
+  grid.updatePosition();
 }
