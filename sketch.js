@@ -110,7 +110,7 @@ class Grid {
         try {
           fill(color(colors[this.grid[i][j].value]));
         } catch {
-          fill(255, 0, 0);
+          fill(0, 0, 0);
         }
         let tileWidth = this.widthConstant - 0.5 * this.weight;
         let tileHeight = this.heightConstant - 0.5 * this.weight;
@@ -129,16 +129,29 @@ class Grid {
   }
 
   updatePosition() {
-    let sum = 0;
+    // let sum = 0;
+    let k;
     if (keyCode === RIGHT_ARROW) {
       for (let i = 0; i < grid.grid.length; i++) {
-        sum = 0;
-        for (let j = 0; j < grid.grid[i].length; j++) {
-          sum += grid.grid[i][j].value;
-          grid.grid[i][j].value = 0;
+        // sum = 0;
+        k = 1;
+        for (let j = grid.grid[i].length - 1; j >= 0; j--) {
+          if (grid.grid[i][j].value !== 0) {
+            if (grid.grid[i][grid.grid[i].length - 1].value === grid.grid[i][j].value) {
+              if (!(grid.grid[i][grid.grid[i].length - 1] === grid.grid[i][j])) {
+                grid.grid[i][grid.grid[i].length - 1].value += grid.grid[i][j].value;
+                grid.grid[i][j].value = 0;
+              }
+            } else {
+              grid.grid[i][grid.grid[i].length - k].value = grid.grid[i][j].value;
+              grid.grid[i][j].value = 0;
+            }
+            k++;
+            console.log(k);
+          }
         }
-        console.log(sum);
-        grid.grid[i][grid.grid[i].length - 1].value = sum;
+        // console.log(sum);
+        // grid.grid[i][grid.grid[i].length - 1].value = sum;
       }
     }
   }
