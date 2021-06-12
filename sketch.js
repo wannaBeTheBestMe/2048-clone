@@ -129,22 +129,21 @@ class Grid {
   }
 
   updatePosition() {
-    // let sum = 0;
     let k;
     if (keyCode === RIGHT_ARROW) {
-      for (let i = 0; i < grid.grid.length; i++) {
+      for (let i = 0; i < this.grid.length; i++) {
         // sum = 0;
         k = 1;
-        for (let j = grid.grid[i].length - 1; j >= 0; j--) {
-          if (grid.grid[i][j].value !== 0) {
-            if (grid.grid[i][grid.grid[i].length - 1].value === grid.grid[i][j].value) {
-              if (!(grid.grid[i][grid.grid[i].length - 1] === grid.grid[i][j])) {
-                grid.grid[i][grid.grid[i].length - 1].value += grid.grid[i][j].value;
-                grid.grid[i][j].value = 0;
+        for (let j = this.grid[i].length - 1; j >= 0; j--) {
+          if (this.grid[i][j].value !== 0) {
+            if (this.grid[i][this.grid[i].length - 1].value === this.grid[i][j].value) {
+              if (!(this.grid[i][this.grid[i].length - 1] === this.grid[i][j])) {
+                this.grid[i][this.grid[i].length - 1].value += this.grid[i][j].value;
+                this.grid[i][j].value = 0;
               }
             } else {
-              grid.grid[i][grid.grid[i].length - k].value = grid.grid[i][j].value;
-              grid.grid[i][j].value = 0;
+              this.grid[i][this.grid[i].length - k].value = this.grid[i][j].value;
+              this.grid[i][j].value = 0;
             }
             k++;
             console.log(k);
@@ -153,6 +152,23 @@ class Grid {
         // console.log(sum);
         // grid.grid[i][grid.grid[i].length - 1].value = sum;
       }
+
+      const itemCounter = (array, item) => {
+        let counter = 0
+        array.flat(Infinity).forEach(x => {
+          if (x == item) { counter++ }
+        });
+        return counter
+      }
+
+      // let column = [];
+      // for (let i = 0; i < this.grid.length; i++) {
+      //   column[i] = this.grid[i][this.grid[i].length - 1].value;
+      // }
+      // console.log(column);
+      // if (!(itemCounter(column, 0)  (this.grid.length - 2))) {
+      //   this.spawn(1);
+      // }
     }
   }
 }
